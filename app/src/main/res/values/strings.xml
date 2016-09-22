@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Realm Repository</string>
+    <string name="hintName">Enter name</string>
+    <string name="hintSurname">Enter surname</string>
+    <string name="menuSearch">Search</string>
+</resources>
+
