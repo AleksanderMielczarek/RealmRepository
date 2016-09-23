@@ -10,12 +10,15 @@ import com.github.aleksandermielczarek.realmrepositoryexample.BR;
 import com.github.aleksandermielczarek.realmrepositoryexample.R;
 import com.github.aleksandermielczarek.realmrepositoryexample.entity.User;
 import com.github.aleksandermielczarek.realmrepositoryexample.entity.UserFieldNames;
+import com.github.aleksandermielczarek.realmrepositoryexample.repository.UserRepository;
 
 import javax.inject.Inject;
 
 import me.tatarka.bindingcollectionadapter.ItemView;
 import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Aleksander Mielczarek on 21.09.2016.
@@ -28,9 +31,15 @@ public class MainViewModel implements UserFieldNames {
     public final ObservableField<User> newUser = new ObservableField<>();
     public final ObservableBoolean error = new ObservableBoolean(true);
 
+    private final UserRepository userRepository;
+
     @Inject
-    public MainViewModel() {
+    public MainViewModel(UserRepository userRepository) {
+        this.userRepository = userRepository;
         newUser.set(new User());
+        userRepository.findAllAsync()
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(users::add);
     }
 
     public Subscription validate(Observable<CharSequence> name, Observable<CharSequence> surname) {
@@ -45,13 +54,19 @@ public class MainViewModel implements UserFieldNames {
     }
 
     public void addUser() {
-        if (!error.get()) {
-            users.add(newUser.get());
-            newUser.set(new User());
-        }
+        userRepository.saveAsync(newUser.get())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(users::add)
+                .subscribe(user -> newUser.set(new User()));
     }
 
     public void removeUser(int position) {
-        users.remove(position);
+        Observable.just(users.get(position))
+                .toSingle()
+                .flatMapCompletable(userRepository::deleteAsync)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> users.remove(position));
     }
 }

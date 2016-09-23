@@ -7,6 +7,6 @@ import com.github.aleksandermielczarek.realmrepositoryexample.entity.User;
 /**
  * Created by Aleksander Mielczarek on 21.09.2016.
  */
-@RealmRepository
-public interface UserRepository extends Repository<User> {
+@RealmRepository(autoGenerateId = true)
+public interface UserRepository extends Repository<User, String> {
 }
