@@ -88,10 +88,6 @@ public class GlobalConfiguration {
     public static final String ID_SETTER_INTERFACE_NAME = "IdSetter";
     public static final String ID_SETTER_INTERFACE_FULL_NAME = "com.github.aleksandermielczarek.realmrepository.idsetter.IdSetter";
 
-    public static final String NO_ID_SETTER_CLASS_PACKAGE = "com.github.aleksandermielczarek.realmrepository.idsetter";
-    public static final String NO_ID_SETTER_CLASS_NAME = "NoIdSetter";
-    public static final String NO_ID_SETTER_CLASS_FULL_NAME = "com.github.aleksandermielczarek.realmrepository.idsetter.NoIdSetter";
-
     private Class<? extends Annotation> realmRepositoryAnnotationClass;
     private final TypeElement repositoryInterfaceTypeElement;
 

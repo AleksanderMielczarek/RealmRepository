@@ -1,5 +1,7 @@
 package com.github.aleksandermielczarek.realmrepository;
 
+import android.support.annotation.Nullable;
+
 import com.github.aleksandermielczarek.realmrepository.configuration.RealmRepositoryConfiguration;
 import com.github.aleksandermielczarek.realmrepository.idgenerator.IdGenerator;
 import com.github.aleksandermielczarek.realmrepository.idsearch.IdSearch;
@@ -29,7 +31,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     private final String idFieldName;
     private final IdSearch idSearch;
 
-    public RepositoryDelegate(Class<T> entityClass, RealmRepositoryConfiguration repositoryConfiguration, IdGenerator<ID> idGenerator, IdSetter<T, ID> idSetter, String idFieldName, IdSearch idSearch) {
+    public RepositoryDelegate(Class<T> entityClass, RealmRepositoryConfiguration repositoryConfiguration, @Nullable IdGenerator<ID> idGenerator, @Nullable IdSetter<T, ID> idSetter, String idFieldName, IdSearch idSearch) {
         this.entityClass = entityClass;
         this.repositoryConfiguration = repositoryConfiguration;
         this.idGenerator = idGenerator;
@@ -149,8 +151,10 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
                 try {
                     realm = repositoryConfiguration.getRealmProvider().provideRealm();
                     realm.beginTransaction();
-                    ID id = idGenerator.generateNextId();
-                    idSetter.setId(entity, id);
+                    if (idGenerator != null && idSetter != null) {
+                        ID id = idGenerator.generateNextId();
+                        idSetter.setId(entity, id);
+                    }
                     T newEntity = realm.copyToRealm(entity);
                     realm.commitTransaction();
                     return realm.copyFromRealm(newEntity);
@@ -173,8 +177,10 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
                     realm = repositoryConfiguration.getRealmProvider().provideRealm();
                     realm.beginTransaction();
                     for (T entity : entities) {
-                        ID id = idGenerator.generateNextId();
-                        idSetter.setId(entity, id);
+                        if (idGenerator != null && idSetter != null) {
+                            ID id = idGenerator.generateNextId();
+                            idSetter.setId(entity, id);
+                        }
                     }
                     List<T> newEntities = realm.copyToRealm(entities);
                     realm.commitTransaction();

@@ -2,7 +2,6 @@ package com.github.aleksandermielczarek.realmrepository.processor.constructor;
 
 import com.github.aleksandermielczarek.realmrepository.processor.GlobalConfiguration;
 import com.github.aleksandermielczarek.realmrepository.processor.LocalConfiguration;
-import com.github.aleksandermielczarek.realmrepository.processor.factory.IdGeneratorFactory;
 import com.github.aleksandermielczarek.realmrepository.processor.factory.IdSearchFactory;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -27,8 +26,8 @@ public class NotGenerateIdConstructor implements Constructor {
                 .addCode(CodeBlock.builder()
                         .addStatement("entityClass = " + localConfiguration.getEntityTypeElement().getSimpleName() + ".class")
                         .addStatement("this.repositoryConfiguration = repositoryConfiguration")
-                        .addStatement("idGenerator = new $T()", IdGeneratorFactory.createIdGenerator(processingEnvironment, localConfiguration))
-                        .addStatement("idSetter = new $T()", ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.NO_ID_SETTER_CLASS_PACKAGE, GlobalConfiguration.NO_ID_SETTER_CLASS_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())))
+                        .addStatement("idGenerator = null")
+                        .addStatement("idSetter = null")
                         .addStatement("idFieldName = $S", localConfiguration.getIdFieldName())
                         .addStatement("idSearch = new $T()", IdSearchFactory.createIdSearch(processingEnvironment, localConfiguration))
                         .addStatement("repositoryDelegate = new $T(entityClass, repositoryConfiguration, idGenerator, idSetter, idFieldName, idSearch)", ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_PACKAGE, GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())))
