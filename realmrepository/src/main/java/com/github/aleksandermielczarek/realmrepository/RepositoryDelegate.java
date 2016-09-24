@@ -2,6 +2,7 @@ package com.github.aleksandermielczarek.realmrepository;
 
 import com.github.aleksandermielczarek.realmrepository.configuration.RealmRepositoryConfiguration;
 import com.github.aleksandermielczarek.realmrepository.idgenerator.IdGenerator;
+import com.github.aleksandermielczarek.realmrepository.idsearch.IdSearch;
 import com.github.aleksandermielczarek.realmrepository.idsetter.IdSetter;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.concurrent.Callable;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import rx.Completable;
 import rx.Observable;
@@ -24,16 +26,77 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     private final RealmRepositoryConfiguration repositoryConfiguration;
     private final IdGenerator<ID> idGenerator;
     private final IdSetter<T, ID> idSetter;
+    private final String idFieldName;
+    private final IdSearch idSearch;
 
-    public RepositoryDelegate(Class<T> entityClass, RealmRepositoryConfiguration repositoryConfiguration, IdGenerator<ID> idGenerator, IdSetter<T, ID> idSetter) {
+    public RepositoryDelegate(Class<T> entityClass, RealmRepositoryConfiguration repositoryConfiguration, IdGenerator<ID> idGenerator, IdSetter<T, ID> idSetter, String idFieldName, IdSearch idSearch) {
         this.entityClass = entityClass;
         this.repositoryConfiguration = repositoryConfiguration;
         this.idGenerator = idGenerator;
         this.idSetter = idSetter;
+        this.idFieldName = idFieldName;
+        this.idSearch = idSearch;
     }
 
     @Override
-    public Observable<T> findAllAsync() {
+    public Observable<Long> count() {
+        return Observable.fromCallable(new Callable<Long>() {
+            @Override
+            public Long call() throws Exception {
+                Realm realm = null;
+                try {
+                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
+                    return realm.where(entityClass).count();
+                } finally {
+                    if (realm != null) {
+                        realm.close();
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public Observable<T> getOne(final ID id) {
+        return Observable.fromCallable(new Callable<T>() {
+            @Override
+            public T call() throws Exception {
+                Realm realm = null;
+                try {
+                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
+                    RealmQuery<T> query = realm.where(entityClass);
+                    return idSearch.searchId(query, idFieldName, id)
+                            .findFirst();
+                } finally {
+                    if (realm != null) {
+                        realm.close();
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public Observable<T> getFirst() {
+        return Observable.fromCallable(new Callable<T>() {
+            @Override
+            public T call() throws Exception {
+                Realm realm = null;
+                try {
+                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
+                    return realm.where(entityClass)
+                            .findFirst();
+                } finally {
+                    if (realm != null) {
+                        realm.close();
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public Observable<T> findAll() {
         return Observable.fromCallable(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
@@ -58,7 +121,27 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Observable<T> saveAsync(final T entity) {
+    public Observable<Boolean> exists(final ID id) {
+        return Observable.fromCallable(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                Realm realm = null;
+                try {
+                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
+                    RealmQuery<T> query = realm.where(entityClass);
+                    return idSearch.searchId(query, idFieldName, id)
+                            .count() > 0;
+                } finally {
+                    if (realm != null) {
+                        realm.close();
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public Observable<T> save(final T entity) {
         return Observable.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
@@ -81,7 +164,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Observable<List<T>> saveAsync(final Iterable<T> entities) {
+    public Observable<List<T>> save(final Iterable<T> entities) {
         return Observable.fromCallable(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
@@ -106,7 +189,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Completable deleteAsync(final T entity) {
+    public Completable delete(final T entity) {
         return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -127,7 +210,33 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Completable deleteAsync(final Iterable<T> entities) {
+    public Completable delete(final ID id) {
+        return Completable.fromCallable(new Callable<List<T>>() {
+            @Override
+            public List<T> call() throws Exception {
+                Realm realm = null;
+                try {
+                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
+                    realm.beginTransaction();
+                    RealmQuery<T> query = realm.where(entityClass);
+                    T entity = idSearch.searchId(query, idFieldName, id)
+                            .findFirst();
+                    if (entity != null) {
+                        entity.deleteFromRealm();
+                    }
+                    realm.commitTransaction();
+                    return null;
+                } finally {
+                    if (realm != null) {
+                        realm.close();
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public Completable delete(final Iterable<T> entities) {
         return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -150,7 +259,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Completable deleteAllAsync() {
+    public Completable deleteAll() {
         return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

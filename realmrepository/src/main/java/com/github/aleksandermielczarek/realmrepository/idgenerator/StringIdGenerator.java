@@ -4,7 +4,7 @@ package com.github.aleksandermielczarek.realmrepository.idgenerator;
  * Created by Aleksander Mielczarek on 23.09.2016.
  */
 
-public class StringGenerator implements IdGenerator<String> {
+public class StringIdGenerator implements IdGenerator<String> {
 
     private final UuidIdGenerator uuidIdGenerator = new UuidIdGenerator();
 

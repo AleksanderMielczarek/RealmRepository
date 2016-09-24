@@ -37,7 +37,7 @@ public class MainViewModel implements UserFieldNames {
     public MainViewModel(UserRepository userRepository) {
         this.userRepository = userRepository;
         newUser.set(new User());
-        userRepository.findAllAsync()
+        userRepository.findAll()
                 .subscribeOn(Schedulers.newThread())
                 .subscribe(users::add);
     }
@@ -54,7 +54,7 @@ public class MainViewModel implements UserFieldNames {
     }
 
     public void addUser() {
-        userRepository.saveAsync(newUser.get())
+        userRepository.save(newUser.get())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(users::add)
@@ -64,7 +64,7 @@ public class MainViewModel implements UserFieldNames {
     public void removeUser(int position) {
         Observable.just(users.get(position))
                 .toSingle()
-                .flatMapCompletable(userRepository::deleteAsync)
+                .flatMapCompletable(userRepository::delete)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> users.remove(position));

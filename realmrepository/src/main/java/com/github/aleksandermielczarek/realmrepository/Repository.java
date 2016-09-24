@@ -12,16 +12,26 @@ import rx.Observable;
 
 public interface Repository<T extends RealmObject, ID> {
 
-    Observable<T> findAllAsync();
+    Observable<Long> count();
 
-    Observable<T> saveAsync(T entity);
+    Observable<T> getOne(ID id);
 
-    Observable<List<T>> saveAsync(Iterable<T> entities);
+    Observable<T> getFirst();
 
-    Completable deleteAsync(T entity);
+    Observable<T> findAll();
 
-    Completable deleteAsync(Iterable<T> entities);
+    Observable<Boolean> exists(ID id);
 
-    Completable deleteAllAsync();
+    Observable<T> save(T entity);
+
+    Observable<List<T>> save(Iterable<T> entities);
+
+    Completable delete(T entity);
+
+    Completable delete(ID id);
+
+    Completable delete(Iterable<T> entities);
+
+    Completable deleteAll();
 
 }
