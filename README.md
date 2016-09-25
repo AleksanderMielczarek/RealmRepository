@@ -162,6 +162,7 @@ In future releases API may change. Feel free to contribute.
 ### 0.2.0 (2016-09-25)
 
 - add sync methods
+- fix bugs
 
 ## License
 
