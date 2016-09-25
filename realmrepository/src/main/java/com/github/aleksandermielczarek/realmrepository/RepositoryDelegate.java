@@ -142,8 +142,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         try {
             realm = repositoryConfiguration.getRealmProvider().provideRealm();
             realm.beginTransaction();
-            for (T entity : entities) {
-                if (idGenerator != null && idSetter != null) {
+            if (idGenerator != null && idSetter != null) {
+                for (T entity : entities) {
                     ID id = idGenerator.generateNextId();
                     idSetter.setId(entity, id);
                 }
