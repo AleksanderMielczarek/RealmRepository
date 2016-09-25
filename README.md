@@ -10,27 +10,50 @@ Supported functions:
 ```java
 public interface Repository<T extends RealmObject, ID> {
 
+    long countSync();
+    
+    T getOneSync(ID id);
+    
+    T getFirstSync();
+    
+    List<T> findAllSync();
+    
+    boolean existsSync(ID id);
+    
+    T saveSync(T entity);
+    
+    List<T> saveSync(Iterable<T> entities);
+    
+    void deleteSync(T entity);
+    
+    void deleteSync(ID id);
+    
+    void deleteSync(Iterable<T> entities);
+    
+    void deleteAllSync();
+    
     Observable<Long> count();
-
+    
     Observable<T> getOne(ID id);
-
+    
     Observable<T> getFirst();
-
+    
     Observable<T> findAll();
-
+    
     Observable<Boolean> exists(ID id);
-
+    
     Observable<T> save(T entity);
-
+    
     Observable<List<T>> save(Iterable<T> entities);
-
+    
     Completable delete(T entity);
-
+    
     Completable delete(ID id);
-
+    
     Completable delete(Iterable<T> entities);
-
+    
     Completable deleteAll();
+    
 }
 ```
 
@@ -65,8 +88,8 @@ apply plugin: 'android-apt'
 
 dependencies {
     ...
-    compile 'com.github.AleksanderMielczarek.RealmRepository:realmrepository:0.1.0'
-    apt 'com.github.AleksanderMielczarek.RealmRepository:realmrepository-processor:0.1.0'
+    compile 'com.github.AleksanderMielczarek.RealmRepository:realmrepository:0.2.0'
+    apt 'com.github.AleksanderMielczarek.RealmRepository:realmrepository-processor:0.2.0'
 }
 ```
 
@@ -133,6 +156,12 @@ public interface UserRepository extends Repository<User, String> {
 ## Note
 
 In future releases API may change. Feel free to contribute.
+
+## Changelog
+
+### 0.2.0 (2016-09-25)
+
+- add sync methods
 
 ## License
 
