@@ -53,6 +53,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         }
     }
 
+    @Nullable
     @Override
     public T getOneSync(ID id) {
         Realm realm = null;
@@ -61,7 +62,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
             RealmQuery<T> query = realm.where(entityClass);
             T entity = idSearch.searchId(query, idFieldName, id)
                     .findFirst();
-            return realm.copyFromRealm(entity);
+            return entity == null ? null : realm.copyFromRealm(entity);
         } finally {
             if (realm != null) {
                 realm.close();
@@ -69,6 +70,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         }
     }
 
+    @Nullable
     @Override
     public T getFirstSync() {
         Realm realm = null;
@@ -76,7 +78,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
             realm = repositoryConfiguration.getRealmProvider().provideRealm();
             T entity = realm.where(entityClass)
                     .findFirst();
-            return realm.copyFromRealm(entity);
+            return entity == null ? null : realm.copyFromRealm(entity);
         } finally {
             if (realm != null) {
                 realm.close();

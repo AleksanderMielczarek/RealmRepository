@@ -1,5 +1,7 @@
 package com.github.aleksandermielczarek.realmrepository;
 
+import android.support.annotation.Nullable;
+
 import java.util.List;
 
 import io.realm.RealmObject;
@@ -14,8 +16,10 @@ public interface Repository<T extends RealmObject, ID> {
 
     long countSync();
 
+    @Nullable
     T getOneSync(ID id);
 
+    @Nullable
     T getFirstSync();
 
     List<T> findAllSync();

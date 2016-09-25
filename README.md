@@ -12,8 +12,10 @@ public interface Repository<T extends RealmObject, ID> {
 
     long countSync();
     
+    @Nullable
     T getOneSync(ID id);
     
+    @Nullable
     T getFirstSync();
     
     List<T> findAllSync();
