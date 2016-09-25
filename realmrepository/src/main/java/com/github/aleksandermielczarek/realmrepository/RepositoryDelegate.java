@@ -124,7 +124,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
                 ID id = idGenerator.generateNextId();
                 idSetter.setId(entity, id);
             }
-            T newEntity = realm.copyToRealm(entity);
+            T newEntity = realm.copyToRealmOrUpdate(entity);
             realm.commitTransaction();
             return realm.copyFromRealm(newEntity);
         } finally {
@@ -146,7 +146,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
                     idSetter.setId(entity, id);
                 }
             }
-            List<T> newEntities = realm.copyToRealm(entities);
+            List<T> newEntities = realm.copyToRealmOrUpdate(entities);
             realm.commitTransaction();
             return realm.copyFromRealm(newEntities);
         } finally {
