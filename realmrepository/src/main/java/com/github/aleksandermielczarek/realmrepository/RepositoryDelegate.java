@@ -41,19 +41,194 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
+    public long countSync() {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            return realm.where(entityClass).count();
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
+    public T getOneSync(ID id) {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            RealmQuery<T> query = realm.where(entityClass);
+            T entity = idSearch.searchId(query, idFieldName, id)
+                    .findFirst();
+            return realm.copyFromRealm(entity);
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
+    public T getFirstSync() {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            T entity = realm.where(entityClass)
+                    .findFirst();
+            return realm.copyFromRealm(entity);
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
+    public List<T> findAllSync() {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            RealmResults<T> users = realm.where(entityClass)
+                    .findAll();
+            return realm.copyFromRealm(users);
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
+    public boolean existsSync(ID id) {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            RealmQuery<T> query = realm.where(entityClass);
+            return idSearch.searchId(query, idFieldName, id)
+                    .count() > 0;
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
+    public T saveSync(T entity) {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            realm.beginTransaction();
+            if (idGenerator != null && idSetter != null) {
+                ID id = idGenerator.generateNextId();
+                idSetter.setId(entity, id);
+            }
+            T newEntity = realm.copyToRealm(entity);
+            realm.commitTransaction();
+            return realm.copyFromRealm(newEntity);
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
+    public List<T> saveSync(Iterable<T> entities) {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            realm.beginTransaction();
+            for (T entity : entities) {
+                if (idGenerator != null && idSetter != null) {
+                    ID id = idGenerator.generateNextId();
+                    idSetter.setId(entity, id);
+                }
+            }
+            List<T> newEntities = realm.copyToRealm(entities);
+            realm.commitTransaction();
+            return realm.copyFromRealm(newEntities);
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
+    public void deleteSync(T entity) {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            realm.beginTransaction();
+            realm.copyToRealmOrUpdate(entity).deleteFromRealm();
+            realm.commitTransaction();
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
+    public void deleteSync(ID id) {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            realm.beginTransaction();
+            RealmQuery<T> query = realm.where(entityClass);
+            T entity = idSearch.searchId(query, idFieldName, id)
+                    .findFirst();
+            if (entity != null) {
+                entity.deleteFromRealm();
+            }
+            realm.commitTransaction();
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
+    public void deleteSync(Iterable<T> entities) {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            realm.beginTransaction();
+            for (T entity : entities) {
+                realm.copyToRealmOrUpdate(entity).deleteFromRealm();
+            }
+            realm.commitTransaction();
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
+    public void deleteAllSync() {
+        Realm realm = null;
+        try {
+            realm = repositoryConfiguration.getRealmProvider().provideRealm();
+            realm.beginTransaction();
+            realm.delete(entityClass);
+            realm.commitTransaction();
+        } finally {
+            if (realm != null) {
+                realm.close();
+            }
+        }
+    }
+
+    @Override
     public Observable<Long> count() {
         return Observable.fromCallable(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    return realm.where(entityClass).count();
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                return countSync();
             }
         });
     }
@@ -63,17 +238,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         return Observable.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    RealmQuery<T> query = realm.where(entityClass);
-                    return idSearch.searchId(query, idFieldName, id)
-                            .findFirst();
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                return getOneSync(id);
             }
         });
     }
@@ -83,16 +248,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         return Observable.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    return realm.where(entityClass)
-                            .findFirst();
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                return getFirstSync();
             }
         });
     }
@@ -102,17 +258,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         return Observable.fromCallable(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    RealmResults<T> users = realm.where(entityClass)
-                            .findAll();
-                    return realm.copyFromRealm(users);
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                return findAllSync();
             }
         }).flatMap(new Func1<List<T>, Observable<T>>() {
             @Override
@@ -127,17 +273,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         return Observable.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    RealmQuery<T> query = realm.where(entityClass);
-                    return idSearch.searchId(query, idFieldName, id)
-                            .count() > 0;
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                return existsSync(id);
             }
         });
     }
@@ -147,22 +283,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         return Observable.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    realm.beginTransaction();
-                    if (idGenerator != null && idSetter != null) {
-                        ID id = idGenerator.generateNextId();
-                        idSetter.setId(entity, id);
-                    }
-                    T newEntity = realm.copyToRealm(entity);
-                    realm.commitTransaction();
-                    return realm.copyFromRealm(newEntity);
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                return saveSync(entity);
             }
         });
     }
@@ -172,24 +293,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         return Observable.fromCallable(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    realm.beginTransaction();
-                    for (T entity : entities) {
-                        if (idGenerator != null && idSetter != null) {
-                            ID id = idGenerator.generateNextId();
-                            idSetter.setId(entity, id);
-                        }
-                    }
-                    List<T> newEntities = realm.copyToRealm(entities);
-                    realm.commitTransaction();
-                    return realm.copyFromRealm(newEntities);
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                return saveSync(entities);
             }
         });
     }
@@ -199,18 +303,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    realm.beginTransaction();
-                    realm.copyToRealmOrUpdate(entity).deleteFromRealm();
-                    realm.commitTransaction();
-                    return null;
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                deleteSync(entity);
+                return null;
             }
         });
     }
@@ -220,23 +314,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         return Completable.fromCallable(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    realm.beginTransaction();
-                    RealmQuery<T> query = realm.where(entityClass);
-                    T entity = idSearch.searchId(query, idFieldName, id)
-                            .findFirst();
-                    if (entity != null) {
-                        entity.deleteFromRealm();
-                    }
-                    realm.commitTransaction();
-                    return null;
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                deleteSync(id);
+                return null;
             }
         });
     }
@@ -246,20 +325,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    realm.beginTransaction();
-                    for (T entity : entities) {
-                        realm.copyToRealmOrUpdate(entity).deleteFromRealm();
-                    }
-                    realm.commitTransaction();
-                    return null;
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                deleteSync(entities);
+                return null;
             }
         });
     }
@@ -269,18 +336,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
         return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Realm realm = null;
-                try {
-                    realm = repositoryConfiguration.getRealmProvider().provideRealm();
-                    realm.beginTransaction();
-                    realm.delete(entityClass);
-                    realm.commitTransaction();
-                    return null;
-                } finally {
-                    if (realm != null) {
-                        realm.close();
-                    }
-                }
+                deleteAllSync();
+                return null;
             }
         });
     }

@@ -4,16 +4,27 @@ import com.github.aleksandermielczarek.realmrepository.processor.constructor.Con
 import com.github.aleksandermielczarek.realmrepository.processor.constructor.GenerateIdConstructor;
 import com.github.aleksandermielczarek.realmrepository.processor.constructor.NotGenerateIdConstructor;
 import com.github.aleksandermielczarek.realmrepository.processor.method.CountMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.CountSyncMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.DeleteAllMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.DeleteAllSyncMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.DeleteIdMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.DeleteIterableTMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.DeleteSyncIdMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.DeleteSyncIterableTMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.DeleteSyncTMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.DeleteTMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.ExistsIdMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.ExistsSyncIdMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.FindAllMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.FindAllSyncMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.GetFirstMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.GetFirstSyncMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.GetOneIdMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.GetOneSyncIdMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.Method;
 import com.github.aleksandermielczarek.realmrepository.processor.method.SaveIterableTMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.SaveSyncIterableTMethod;
+import com.github.aleksandermielczarek.realmrepository.processor.method.SaveSyncTMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.SaveTMethod;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
@@ -49,6 +60,17 @@ import javax.tools.Diagnostic;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class RealmRepositoryProcessor extends AbstractProcessor {
 
+    public static final String COUNT_SYNC_METHOD = "countSync()";
+    public static final String GET_ONE_SYNC_ID_METHOD = "getOneSync(ID)";
+    public static final String GET_FIRST_SYNC_METHOD = "getFirstSync()";
+    public static final String FIND_ALL_SYNC_METHOD = "findAllSync()";
+    public static final String EXISTS_SYNC_ID_METHOD = "existsSync(ID)";
+    public static final String SAVE_SYNC_T_METHOD = "saveSync(T)";
+    public static final String SAVE_SYNC_ITERABLE_T_METHOD = "saveSync(java.lang.Iterable<T>)";
+    public static final String DELETE_SYNC_T_METHOD = "deleteSync(T)";
+    public static final String DELETE_SYNC_ID_METHOD = "deleteSync(ID)";
+    public static final String DELETE_SYNC_ITERABLE_T_METHOD = "deleteSync(java.lang.Iterable<T>)";
+    public static final String DELETE_ALL_SYNC_METHOD = "deleteAllSync()";
     public static final String COUNT_METHOD = "count()";
     public static final String GET_ONE_ID_METHOD = "getOne(ID)";
     public static final String GET_FIRST_METHOD = "getFirst()";
@@ -61,6 +83,17 @@ public class RealmRepositoryProcessor extends AbstractProcessor {
     public static final String DELETE_ITERABLE_T_METHOD = "delete(java.lang.Iterable<T>)";
     public static final String DELETE_ALL_METHOD = "deleteAll()";
 
+    private final Method countSyncMethod = new CountSyncMethod();
+    private final Method getOneSyncIdMethod = new GetOneSyncIdMethod();
+    private final Method getFirstSyncMethod = new GetFirstSyncMethod();
+    private final Method findAllSyncMethod = new FindAllSyncMethod();
+    private final Method existsSyncIdMethod = new ExistsSyncIdMethod();
+    private final Method saveSyncTMethod = new SaveSyncTMethod();
+    private final Method saveSyncIterableTMethod = new SaveSyncIterableTMethod();
+    private final Method deleteSyncTMethod = new DeleteSyncTMethod();
+    private final Method deleteSyncIdMethod = new DeleteSyncIdMethod();
+    private final Method deleteSyncIterableTMethod = new DeleteSyncIterableTMethod();
+    private final Method deleteAllSyncMethod = new DeleteAllSyncMethod();
     private final Method countMethod = new CountMethod();
     private final Method getOneIdMethod = new GetOneIdMethod();
     private final Method getFirstMethod = new GetFirstMethod();
@@ -108,7 +141,21 @@ public class RealmRepositoryProcessor extends AbstractProcessor {
                             .map(element -> (ExecutableElement) element)
                             .collect(Collectors.toMap(Object::toString, method -> method));
 
-                    repositoryBuilder.addMethod(countMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(COUNT_METHOD), repositoryBuilder))
+                    repositoryBuilder
+
+                            .addMethod(countSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(COUNT_SYNC_METHOD), repositoryBuilder))
+                            .addMethod(getOneSyncIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(GET_ONE_SYNC_ID_METHOD), repositoryBuilder))
+                            .addMethod(getFirstSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(GET_FIRST_SYNC_METHOD), repositoryBuilder))
+                            .addMethod(findAllSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_ALL_SYNC_METHOD), repositoryBuilder))
+                            .addMethod(existsSyncIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(EXISTS_SYNC_ID_METHOD), repositoryBuilder))
+                            .addMethod(saveSyncTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(SAVE_SYNC_T_METHOD), repositoryBuilder))
+                            .addMethod(saveSyncIterableTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(SAVE_SYNC_ITERABLE_T_METHOD), repositoryBuilder))
+                            .addMethod(deleteSyncTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_SYNC_T_METHOD), repositoryBuilder))
+                            .addMethod(deleteSyncIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_SYNC_ID_METHOD), repositoryBuilder))
+                            .addMethod(deleteSyncIterableTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_SYNC_ITERABLE_T_METHOD), repositoryBuilder))
+                            .addMethod(deleteAllSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_ALL_SYNC_METHOD), repositoryBuilder))
+
+                            .addMethod(countMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(COUNT_METHOD), repositoryBuilder))
                             .addMethod(getOneIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(GET_ONE_ID_METHOD), repositoryBuilder))
                             .addMethod(getFirstMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(GET_FIRST_METHOD), repositoryBuilder))
                             .addMethod(findAllMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_ALL_METHOD), repositoryBuilder))

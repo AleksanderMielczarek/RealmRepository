@@ -12,6 +12,28 @@ import rx.Observable;
 
 public interface Repository<T extends RealmObject, ID> {
 
+    long countSync();
+
+    T getOneSync(ID id);
+
+    T getFirstSync();
+
+    List<T> findAllSync();
+
+    boolean existsSync(ID id);
+
+    T saveSync(T entity);
+
+    List<T> saveSync(Iterable<T> entities);
+
+    void deleteSync(T entity);
+
+    void deleteSync(ID id);
+
+    void deleteSync(Iterable<T> entities);
+
+    void deleteAllSync();
+
     Observable<Long> count();
 
     Observable<T> getOne(ID id);
