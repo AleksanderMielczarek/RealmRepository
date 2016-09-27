@@ -57,8 +57,8 @@ public class MainViewModel implements UserFieldNames {
         userRepository.save(newUser.get())
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(users::add)
-                .subscribe(user -> newUser.set(new User()));
+                .map(users::add)
+                .subscribe(added -> newUser.set(new User()));
     }
 
     public void removeUser(int position) {

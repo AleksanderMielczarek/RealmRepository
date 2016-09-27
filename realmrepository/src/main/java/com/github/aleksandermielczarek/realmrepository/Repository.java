@@ -7,6 +7,7 @@ import java.util.List;
 import io.realm.RealmObject;
 import rx.Completable;
 import rx.Observable;
+import rx.Single;
 
 /**
  * Created by Aleksander Mielczarek on 21.09.2016.
@@ -38,19 +39,19 @@ public interface Repository<T extends RealmObject, ID> {
 
     void deleteAllSync();
 
-    Observable<Long> count();
+    Single<Long> count();
 
-    Observable<T> getOne(ID id);
+    Single<T> getOne(ID id);
 
-    Observable<T> getFirst();
+    Single<T> getFirst();
 
     Observable<T> findAll();
 
-    Observable<Boolean> exists(ID id);
+    Single<Boolean> exists(ID id);
 
-    Observable<T> save(T entity);
+    Single<T> save(T entity);
 
-    Observable<List<T>> save(Iterable<T> entities);
+    Single<List<T>> save(Iterable<T> entities);
 
     Completable delete(T entity);
 

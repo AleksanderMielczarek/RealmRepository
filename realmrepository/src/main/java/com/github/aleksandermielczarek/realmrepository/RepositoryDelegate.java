@@ -16,6 +16,7 @@ import io.realm.RealmQuery;
 import io.realm.RealmResults;
 import rx.Completable;
 import rx.Observable;
+import rx.Single;
 import rx.functions.Func1;
 
 /**
@@ -226,8 +227,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Observable<Long> count() {
-        return Observable.fromCallable(new Callable<Long>() {
+    public Single<Long> count() {
+        return Single.fromCallable(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
                 return countSync();
@@ -236,8 +237,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Observable<T> getOne(final ID id) {
-        return Observable.fromCallable(new Callable<T>() {
+    public Single<T> getOne(final ID id) {
+        return Single.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
                 return getOneSync(id);
@@ -246,8 +247,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Observable<T> getFirst() {
-        return Observable.fromCallable(new Callable<T>() {
+    public Single<T> getFirst() {
+        return Single.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
                 return getFirstSync();
@@ -271,8 +272,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Observable<Boolean> exists(final ID id) {
-        return Observable.fromCallable(new Callable<Boolean>() {
+    public Single<Boolean> exists(final ID id) {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 return existsSync(id);
@@ -281,8 +282,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Observable<T> save(final T entity) {
-        return Observable.fromCallable(new Callable<T>() {
+    public Single<T> save(final T entity) {
+        return Single.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
                 return saveSync(entity);
@@ -291,8 +292,8 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Observable<List<T>> save(final Iterable<T> entities) {
-        return Observable.fromCallable(new Callable<List<T>>() {
+    public Single<List<T>> save(final Iterable<T> entities) {
+        return Single.fromCallable(new Callable<List<T>>() {
             @Override
             public List<T> call() throws Exception {
                 return saveSync(entities);
