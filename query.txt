@@ -1,0 +1,55 @@
+start:
+max                   max{Field}[By]                                      long, byte, double, float, int, short, Observable<Long>, Observable<Byte>, Observable<Double>, Observable<Float>, Observable<Integer>, Observable<Short>
+average               average{Field}[By]                                  double, Observable<Double>
+sum                   sum{Field}[By]                                      long, byte, double, float, int, short, Observable<Long>, Observable<Byte>, Observable<Double>, Observable<Float>, Observable<Integer>, Observable<Short>
+min                   min{Field}[By]                                      long, byte, double, float, int, short, Observable<Long>, Observable<Byte>, Observable<Double>, Observable<Float>, Observable<Integer>, Observable<Short>
+count                 count[By]                                           Long, Observable<Long>
+
+find                  find[By]                                            List<T>, Observable<T>
+findFirst             findFirst[By]                                       List<T>, Observable<T>
+
+exists                exists[By]                                          boolean, Observable<Boolean>
+
+Modifiers:
+first                 First[By]                                           T, Observable<T>
+
+distinct              Distinct{Field}[By]                                 List<T>, Observable<T>
+distinctRemaining     Distinct{Field}[And]{Field}[By]                     List<T>, Observable<T>
+sorted                OrderBy{Field}Ascending[By]                         List<T>, Observable<T>
+                      OrderBy{Field}Descending[By]                        List<T>, Observable<T>
+sortedMany            OrderBy{Field}Ascending[And]{Field}Ascending[By]    List<T>, Observable<T>
+                      OrderBy{Field}Descending[And]{Field}Descending[By]  List<T>, Observable<T>
+
+Middle:
+By
+And
+Or
+AndNot
+OrNot
+
+beginsWith            {Field}BeginsWith<Arg>
+beginsWithCase        {Field}BeginsWithInsensitive<Arg>
+                      {Field}BeginsWithSensitive<Arg>
+between               {Field}Between<Arg><Arg>
+contains              {Field}Contains<Arg>
+containsCase          {Field}ContainsInsensitive<Arg>
+                      {Field}ContainsSensitive<Arg>
+endsWith              {Field}EndsWith<Arg>
+endsWithCase          {Field}EndsWithInsensitive<Arg>
+                      {Field}EndsWithSensitive<Arg>
+equalTo               {Field}<Arg>
+equalToCase           {Field}Sensitive<Arg>
+                      {Field}Insensitive<Arg>
+greaterThan           {Field}GreaterThan<Arg>
+greaterThanOrEqualTo  {Field}GreaterThanOrEqualTo<Arg>
+isEmpty               {Field}IsEmpty
+isNotEmpty            {Field}IsNotEmpty
+isNull                {Field}IsNull
+isNotNull             {Field}IsNotNull
+lessThan              {Field}LessThan<Arg>
+lessThanOrEqualTo     {Field}LessThanOrEqualTo<Arg>
+notEqualTo            {Field}Not<Arg>
+
+grouping:
+start                 BeginGroupBy
+end                   EndGroup
