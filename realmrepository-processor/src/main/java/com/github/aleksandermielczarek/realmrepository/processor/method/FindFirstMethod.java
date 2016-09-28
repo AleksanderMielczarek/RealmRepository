@@ -12,13 +12,13 @@ import javax.lang.model.element.ExecutableElement;
 /**
  * Created by Aleksander Mielczarek on 24.09.2016.
  */
-public class GetFirstMethod implements Method {
+public class FindFirstMethod implements Method {
 
     @Override
     public MethodSpec createMethod(ProcessingEnvironment processingEnvironment, GlobalConfiguration globalConfiguration, LocalConfiguration localConfiguration, ExecutableElement method, TypeSpec.Builder repositoryBuilder) {
         return MethodSpec.overriding(method, localConfiguration.getRepositoryInterfaceDeclaredType(), processingEnvironment.getTypeUtils())
                 .addCode(CodeBlock.builder()
-                        .addStatement("return repositoryDelegate.getFirst()")
+                        .addStatement("return repositoryDelegate.findFirst()")
                         .build())
                 .build();
     }

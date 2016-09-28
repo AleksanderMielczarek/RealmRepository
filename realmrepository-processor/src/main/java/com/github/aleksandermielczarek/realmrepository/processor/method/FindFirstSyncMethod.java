@@ -10,15 +10,15 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
 
 /**
- * Created by Aleksander Mielczarek on 24.09.2016.
+ * Created by Aleksander Mielczarek on 25.09.2016.
  */
-public class GetOneIdMethod implements Method {
+public class FindFirstSyncMethod implements Method {
 
     @Override
     public MethodSpec createMethod(ProcessingEnvironment processingEnvironment, GlobalConfiguration globalConfiguration, LocalConfiguration localConfiguration, ExecutableElement method, TypeSpec.Builder repositoryBuilder) {
         return MethodSpec.overriding(method, localConfiguration.getRepositoryInterfaceDeclaredType(), processingEnvironment.getTypeUtils())
                 .addCode(CodeBlock.builder()
-                        .addStatement("return repositoryDelegate.getOne(arg0)")
+                        .addStatement("return repositoryDelegate.findFirstSync()")
                         .build())
                 .build();
     }

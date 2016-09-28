@@ -18,10 +18,10 @@ public interface Repository<T extends RealmObject, ID> {
     long countSync();
 
     @Nullable
-    T getOneSync(ID id);
+    T findOneSync(ID id);
 
     @Nullable
-    T getFirstSync();
+    T findFirstSync();
 
     List<T> findAllSync();
 
@@ -41,9 +41,9 @@ public interface Repository<T extends RealmObject, ID> {
 
     Single<Long> count();
 
-    Single<T> getOne(ID id);
+    Single<T> findOne(ID id);
 
-    Single<T> getFirst();
+    Single<T> findFirst();
 
     Observable<T> findAll();
 

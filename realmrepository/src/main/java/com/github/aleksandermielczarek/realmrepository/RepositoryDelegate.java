@@ -56,7 +56,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
 
     @Nullable
     @Override
-    public T getOneSync(ID id) {
+    public T findOneSync(ID id) {
         Realm realm = null;
         try {
             realm = repositoryConfiguration.getRealmProvider().provideRealm();
@@ -73,7 +73,7 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
 
     @Nullable
     @Override
-    public T getFirstSync() {
+    public T findFirstSync() {
         Realm realm = null;
         try {
             realm = repositoryConfiguration.getRealmProvider().provideRealm();
@@ -237,21 +237,21 @@ public class RepositoryDelegate<T extends RealmObject, ID> implements Repository
     }
 
     @Override
-    public Single<T> getOne(final ID id) {
+    public Single<T> findOne(final ID id) {
         return Single.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
-                return getOneSync(id);
+                return findOneSync(id);
             }
         });
     }
 
     @Override
-    public Single<T> getFirst() {
+    public Single<T> findFirst() {
         return Single.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
-                return getFirstSync();
+                return findFirstSync();
             }
         });
     }

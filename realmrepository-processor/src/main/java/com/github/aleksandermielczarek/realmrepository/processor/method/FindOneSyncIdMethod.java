@@ -12,13 +12,13 @@ import javax.lang.model.element.ExecutableElement;
 /**
  * Created by Aleksander Mielczarek on 25.09.2016.
  */
-public class GetFirstSyncMethod implements Method {
+public class FindOneSyncIdMethod implements Method {
 
     @Override
     public MethodSpec createMethod(ProcessingEnvironment processingEnvironment, GlobalConfiguration globalConfiguration, LocalConfiguration localConfiguration, ExecutableElement method, TypeSpec.Builder repositoryBuilder) {
         return MethodSpec.overriding(method, localConfiguration.getRepositoryInterfaceDeclaredType(), processingEnvironment.getTypeUtils())
                 .addCode(CodeBlock.builder()
-                        .addStatement("return repositoryDelegate.getFirstSync()")
+                        .addStatement("return repositoryDelegate.findOneSync(arg0)")
                         .build())
                 .build();
     }
