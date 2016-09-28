@@ -123,16 +123,19 @@ public class RealmRepositoryProcessor extends AbstractProcessor {
                 .forEach(dataRepositoryInterfaceTypeElement -> {
                     LocalConfiguration localConfiguration = new LocalConfiguration(dataRepositoryInterfaceTypeElement, processingEnv, globalConfiguration);
 
-                    TypeSpec.Builder repositoryBuilder = TypeSpec.classBuilder(dataRepositoryInterfaceTypeElement.getSimpleName() + "Impl")
-                            .addModifiers(Modifier.PUBLIC)
+                    TypeSpec.Builder repositoryBuilder = localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ?
+                            TypeSpec.classBuilder("Abstract" + dataRepositoryInterfaceTypeElement.getSimpleName()).addModifiers(Modifier.ABSTRACT) :
+                            TypeSpec.classBuilder(dataRepositoryInterfaceTypeElement.getSimpleName() + "Impl");
+
+                    repositoryBuilder.addModifiers(Modifier.PUBLIC)
                             .addSuperinterface(TypeName.get(dataRepositoryInterfaceTypeElement.asType()))
-                            .addField(ParameterizedTypeName.get(ClassName.get("java.lang", "Class"), TypeName.get(localConfiguration.getEntityTypeMirror())), "entityClass", Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ClassName.get(GlobalConfiguration.REALM_REPOSITORY_CONFIGURATION_CLASS_PACKAGE, GlobalConfiguration.REALM_REPOSITORY_CONFIGURATION_CLASS_NAME), "repositoryConfiguration", Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.ID_GENERATOR_INTERFACE_PACKAGE, GlobalConfiguration.ID_GENERATOR_INTERFACE_NAME), TypeName.get(localConfiguration.getIdTypeMirror())), "idGenerator", Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.ID_SETTER_INTERFACE_PACKAGE, GlobalConfiguration.ID_SETTER_INTERFACE_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())), "idSetter", Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ClassName.get("java.lang", "String"), "idFieldName", Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ClassName.get(GlobalConfiguration.ID_SEARCH_INTERFACE_PACKAGE, GlobalConfiguration.ID_SEARCH_INTERFACE_NAME), "idSearch", Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_PACKAGE, GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())), "repositoryDelegate", Modifier.PRIVATE, Modifier.FINAL);
+                            .addField(ParameterizedTypeName.get(ClassName.get("java.lang", "Class"), TypeName.get(localConfiguration.getEntityTypeMirror())), "entityClass", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                            .addField(ClassName.get(GlobalConfiguration.REALM_REPOSITORY_CONFIGURATION_CLASS_PACKAGE, GlobalConfiguration.REALM_REPOSITORY_CONFIGURATION_CLASS_NAME), "repositoryConfiguration", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                            .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.ID_GENERATOR_INTERFACE_PACKAGE, GlobalConfiguration.ID_GENERATOR_INTERFACE_NAME), TypeName.get(localConfiguration.getIdTypeMirror())), "idGenerator", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                            .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.ID_SETTER_INTERFACE_PACKAGE, GlobalConfiguration.ID_SETTER_INTERFACE_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())), "idSetter", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                            .addField(ClassName.get("java.lang", "String"), "idFieldName", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                            .addField(ClassName.get(GlobalConfiguration.ID_SEARCH_INTERFACE_PACKAGE, GlobalConfiguration.ID_SEARCH_INTERFACE_NAME), "idSearch", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                            .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_PACKAGE, GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())), "repositoryDelegate", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL);
 
                     Constructor constructor = localConfiguration.getRealmRepositoryAnnotation().autoGenerateId() ? new GenerateIdConstructor() : new NotGenerateIdConstructor();
                     repositoryBuilder.addMethod(constructor.createConstructor(processingEnv, globalConfiguration, localConfiguration, repositoryBuilder));

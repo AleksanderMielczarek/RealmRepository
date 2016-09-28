@@ -15,5 +15,6 @@ public @interface RealmRepository {
 
     boolean autoGenerateId() default false;
 
+    boolean abstractRepository() default false;
 }
 
