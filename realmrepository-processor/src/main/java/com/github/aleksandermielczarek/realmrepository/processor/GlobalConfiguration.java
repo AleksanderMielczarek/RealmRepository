@@ -1,10 +1,7 @@
 package com.github.aleksandermielczarek.realmrepository.processor;
 
-import java.lang.annotation.Annotation;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic;
 
 /**
  * Created by Aleksander Mielczarek on 23.09.2016.
@@ -88,21 +85,11 @@ public class GlobalConfiguration {
     public static final String ID_SETTER_INTERFACE_NAME = "IdSetter";
     public static final String ID_SETTER_INTERFACE_FULL_NAME = "com.github.aleksandermielczarek.realmrepository.idsetter.IdSetter";
 
-    private Class<? extends Annotation> realmRepositoryAnnotationClass;
     private final TypeElement repositoryInterfaceTypeElement;
 
     @SuppressWarnings("unchecked")
     public GlobalConfiguration(ProcessingEnvironment processingEnvironment) {
-        try {
-            realmRepositoryAnnotationClass = (Class<? extends Annotation>) Class.forName(REALM_REPOSITORY_ANNOTATION_FULL_NAME);
-        } catch (ClassNotFoundException e) {
-            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
-        }
         repositoryInterfaceTypeElement = processingEnvironment.getElementUtils().getTypeElement(REPOSITORY_INTERFACE_FULL_NAME);
-    }
-
-    public Class<? extends Annotation> getRealmRepositoryAnnotationClass() {
-        return realmRepositoryAnnotationClass;
     }
 
     public TypeElement getRepositoryInterfaceTypeElement() {

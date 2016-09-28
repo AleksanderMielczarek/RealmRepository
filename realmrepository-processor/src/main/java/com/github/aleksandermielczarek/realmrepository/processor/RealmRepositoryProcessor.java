@@ -1,5 +1,6 @@
 package com.github.aleksandermielczarek.realmrepository.processor;
 
+import com.github.aleksandermielczarek.realmrepository.RealmRepository;
 import com.github.aleksandermielczarek.realmrepository.processor.constructor.Constructor;
 import com.github.aleksandermielczarek.realmrepository.processor.constructor.GenerateIdConstructor;
 import com.github.aleksandermielczarek.realmrepository.processor.constructor.NotGenerateIdConstructor;
@@ -116,7 +117,7 @@ public class RealmRepositoryProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        roundEnv.getElementsAnnotatedWith(globalConfiguration.getRealmRepositoryAnnotationClass()).stream()
+        roundEnv.getElementsAnnotatedWith(RealmRepository.class).stream()
                 .filter(element -> element.getKind().equals(ElementKind.INTERFACE))
                 .map(element -> (TypeElement) element)
                 .forEach(dataRepositoryInterfaceTypeElement -> {
@@ -133,7 +134,7 @@ public class RealmRepositoryProcessor extends AbstractProcessor {
                             .addField(ClassName.get(GlobalConfiguration.ID_SEARCH_INTERFACE_PACKAGE, GlobalConfiguration.ID_SEARCH_INTERFACE_NAME), "idSearch", Modifier.PRIVATE, Modifier.FINAL)
                             .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_PACKAGE, GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())), "repositoryDelegate", Modifier.PRIVATE, Modifier.FINAL);
 
-                    Constructor constructor = localConfiguration.isAutogenerateId() ? new GenerateIdConstructor() : new NotGenerateIdConstructor();
+                    Constructor constructor = localConfiguration.getRealmRepositoryAnnotation().autoGenerateId() ? new GenerateIdConstructor() : new NotGenerateIdConstructor();
                     repositoryBuilder.addMethod(constructor.createConstructor(processingEnv, globalConfiguration, localConfiguration, repositoryBuilder));
 
                     Map<String, ExecutableElement> repositoryMethods = Stream.concat(dataRepositoryInterfaceTypeElement.getEnclosedElements().stream(), globalConfiguration.getRepositoryInterfaceTypeElement().getEnclosedElements().stream())

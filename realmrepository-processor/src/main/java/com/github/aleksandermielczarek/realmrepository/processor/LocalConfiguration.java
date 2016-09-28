@@ -1,5 +1,7 @@
 package com.github.aleksandermielczarek.realmrepository.processor;
 
+import com.github.aleksandermielczarek.realmrepository.RealmRepository;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +24,7 @@ public class LocalConfiguration {
     private final TypeElement dataRepositoryInterfaceTypeElement;
     private final PackageElement dataRepositoryPackageElement;
     private final DeclaredType repositoryInterfaceDeclaredType;
-    private final boolean autogenerateId;
+    private final RealmRepository realmRepositoryAnnotation;
     private final TypeMirror entityTypeMirror;
     private final TypeElement entityTypeElement;
     private final TypeMirror idTypeMirror;
@@ -36,7 +38,7 @@ public class LocalConfiguration {
             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Repository interface must extend " + GlobalConfiguration.REPOSITORY_INTERFACE_FULL_NAME);
         }
         repositoryInterfaceDeclaredType = (DeclaredType) dataRepositoryInterfaceTypeElement.getInterfaces().get(0);
-        autogenerateId = dataRepositoryInterfaceTypeElement.getAnnotation(globalConfiguration.getRealmRepositoryAnnotationClass()).toString().contains("true");
+        realmRepositoryAnnotation = dataRepositoryInterfaceTypeElement.getAnnotation(RealmRepository.class);
         List<? extends TypeMirror> genericTypes = repositoryInterfaceDeclaredType.getTypeArguments();
         entityTypeMirror = genericTypes.get(0);
         idTypeMirror = genericTypes.get(1);
@@ -69,10 +71,6 @@ public class LocalConfiguration {
         return repositoryInterfaceDeclaredType;
     }
 
-    public boolean isAutogenerateId() {
-        return autogenerateId;
-    }
-
     public TypeMirror getEntityTypeMirror() {
         return entityTypeMirror;
     }
@@ -91,5 +89,9 @@ public class LocalConfiguration {
 
     public String getIdFieldName() {
         return idFieldName;
+    }
+
+    public RealmRepository getRealmRepositoryAnnotation() {
+        return realmRepositoryAnnotation;
     }
 }

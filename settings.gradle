@@ -1,1 +1,1 @@
-include ':app', ':realmrepository-processor', ':realmrepository'
+include ':app', ':realmrepository-processor', ':realmrepository', ':realmrepository-annotations'
