@@ -1,6 +1,7 @@
 package com.github.aleksandermielczarek.realmrepository.processor;
 
 import com.github.aleksandermielczarek.realmrepository.RealmRepository;
+import com.github.aleksandermielczarek.realmrepository.processor.exception.RealmRepositoryException;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +14,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic;
 
 /**
  * Created by Aleksander Mielczarek on 23.09.2016.
@@ -29,13 +29,13 @@ public class LocalConfiguration {
     private final TypeElement entityTypeElement;
     private final TypeMirror idTypeMirror;
     private final TypeElement idTypeElement;
-    private String idFieldName;
+    private final String idFieldName;
 
     public LocalConfiguration(TypeElement dataRepositoryInterfaceTypeElement, ProcessingEnvironment processingEnvironment, GlobalConfiguration globalConfiguration) {
         this.dataRepositoryInterfaceTypeElement = dataRepositoryInterfaceTypeElement;
         dataRepositoryPackageElement = processingEnvironment.getElementUtils().getPackageOf(dataRepositoryInterfaceTypeElement);
         if (dataRepositoryInterfaceTypeElement.getInterfaces().size() != 1 || !dataRepositoryInterfaceTypeElement.getInterfaces().get(0).toString().contains(GlobalConfiguration.REPOSITORY_INTERFACE_FULL_NAME)) {
-            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Repository interface must extend " + GlobalConfiguration.REPOSITORY_INTERFACE_FULL_NAME);
+            throw new RealmRepositoryException(dataRepositoryInterfaceTypeElement.getSimpleName().toString() + " must extend only " + GlobalConfiguration.REPOSITORY_INTERFACE_FULL_NAME);
         }
         repositoryInterfaceDeclaredType = (DeclaredType) dataRepositoryInterfaceTypeElement.getInterfaces().get(0);
         realmRepositoryAnnotation = dataRepositoryInterfaceTypeElement.getAnnotation(RealmRepository.class);
@@ -55,7 +55,7 @@ public class LocalConfiguration {
         if (primaryKeyField.isPresent()) {
             idFieldName = primaryKeyField.get().getSimpleName().toString();
         } else {
-            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "Entity class must have @PrimaryKey");
+            throw new RealmRepositoryException(entityTypeElement.getSimpleName().toString() + " must have @PrimaryKey");
         }
     }
 

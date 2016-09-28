@@ -4,6 +4,7 @@ import com.github.aleksandermielczarek.realmrepository.RealmRepository;
 import com.github.aleksandermielczarek.realmrepository.processor.constructor.Constructor;
 import com.github.aleksandermielczarek.realmrepository.processor.constructor.GenerateIdConstructor;
 import com.github.aleksandermielczarek.realmrepository.processor.constructor.NotGenerateIdConstructor;
+import com.github.aleksandermielczarek.realmrepository.processor.exception.RealmRepositoryException;
 import com.github.aleksandermielczarek.realmrepository.processor.method.CountMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.CountSyncMethod;
 import com.github.aleksandermielczarek.realmrepository.processor.method.DeleteAllMethod;
@@ -117,66 +118,69 @@ public class RealmRepositoryProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        roundEnv.getElementsAnnotatedWith(RealmRepository.class).stream()
-                .filter(element -> element.getKind().equals(ElementKind.INTERFACE))
-                .map(element -> (TypeElement) element)
-                .forEach(dataRepositoryInterfaceTypeElement -> {
-                    LocalConfiguration localConfiguration = new LocalConfiguration(dataRepositoryInterfaceTypeElement, processingEnv, globalConfiguration);
+        try {
+            roundEnv.getElementsAnnotatedWith(RealmRepository.class).stream()
+                    .filter(element -> element.getKind().equals(ElementKind.INTERFACE))
+                    .map(element -> (TypeElement) element)
+                    .forEach(dataRepositoryInterfaceTypeElement -> {
+                        LocalConfiguration localConfiguration = new LocalConfiguration(dataRepositoryInterfaceTypeElement, processingEnv, globalConfiguration);
 
-                    TypeSpec.Builder repositoryBuilder = localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ?
-                            TypeSpec.classBuilder("Abstract" + dataRepositoryInterfaceTypeElement.getSimpleName()).addModifiers(Modifier.ABSTRACT) :
-                            TypeSpec.classBuilder(dataRepositoryInterfaceTypeElement.getSimpleName() + "Impl");
+                        TypeSpec.Builder repositoryBuilder = localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ?
+                                TypeSpec.classBuilder("Abstract" + dataRepositoryInterfaceTypeElement.getSimpleName()).addModifiers(Modifier.ABSTRACT) :
+                                TypeSpec.classBuilder(dataRepositoryInterfaceTypeElement.getSimpleName() + "Impl");
 
-                    repositoryBuilder.addModifiers(Modifier.PUBLIC)
-                            .addSuperinterface(TypeName.get(dataRepositoryInterfaceTypeElement.asType()))
-                            .addField(ParameterizedTypeName.get(ClassName.get("java.lang", "Class"), TypeName.get(localConfiguration.getEntityTypeMirror())), "entityClass", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ClassName.get(GlobalConfiguration.REALM_REPOSITORY_CONFIGURATION_CLASS_PACKAGE, GlobalConfiguration.REALM_REPOSITORY_CONFIGURATION_CLASS_NAME), "repositoryConfiguration", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.ID_GENERATOR_INTERFACE_PACKAGE, GlobalConfiguration.ID_GENERATOR_INTERFACE_NAME), TypeName.get(localConfiguration.getIdTypeMirror())), "idGenerator", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.ID_SETTER_INTERFACE_PACKAGE, GlobalConfiguration.ID_SETTER_INTERFACE_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())), "idSetter", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ClassName.get("java.lang", "String"), "idFieldName", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ClassName.get(GlobalConfiguration.ID_SEARCH_INTERFACE_PACKAGE, GlobalConfiguration.ID_SEARCH_INTERFACE_NAME), "idSearch", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
-                            .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_PACKAGE, GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())), "repositoryDelegate", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL);
+                        repositoryBuilder.addModifiers(Modifier.PUBLIC)
+                                .addSuperinterface(TypeName.get(dataRepositoryInterfaceTypeElement.asType()))
+                                .addField(ParameterizedTypeName.get(ClassName.get("java.lang", "Class"), TypeName.get(localConfiguration.getEntityTypeMirror())), "entityClass", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                                .addField(ClassName.get(GlobalConfiguration.REALM_REPOSITORY_CONFIGURATION_CLASS_PACKAGE, GlobalConfiguration.REALM_REPOSITORY_CONFIGURATION_CLASS_NAME), "repositoryConfiguration", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                                .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.ID_GENERATOR_INTERFACE_PACKAGE, GlobalConfiguration.ID_GENERATOR_INTERFACE_NAME), TypeName.get(localConfiguration.getIdTypeMirror())), "idGenerator", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                                .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.ID_SETTER_INTERFACE_PACKAGE, GlobalConfiguration.ID_SETTER_INTERFACE_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())), "idSetter", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                                .addField(ClassName.get("java.lang", "String"), "idFieldName", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                                .addField(ClassName.get(GlobalConfiguration.ID_SEARCH_INTERFACE_PACKAGE, GlobalConfiguration.ID_SEARCH_INTERFACE_NAME), "idSearch", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL)
+                                .addField(ParameterizedTypeName.get(ClassName.get(GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_PACKAGE, GlobalConfiguration.REPOSITORY_DELEGATE_CLASS_NAME), TypeName.get(localConfiguration.getEntityTypeMirror()), TypeName.get(localConfiguration.getIdTypeMirror())), "repositoryDelegate", localConfiguration.getRealmRepositoryAnnotation().abstractRepository() ? Modifier.PROTECTED : Modifier.PRIVATE, Modifier.FINAL);
 
-                    Constructor constructor = localConfiguration.getRealmRepositoryAnnotation().autoGenerateId() ? new GenerateIdConstructor() : new NotGenerateIdConstructor();
-                    repositoryBuilder.addMethod(constructor.createConstructor(processingEnv, globalConfiguration, localConfiguration, repositoryBuilder));
+                        Constructor constructor = localConfiguration.getRealmRepositoryAnnotation().autoGenerateId() ? new GenerateIdConstructor() : new NotGenerateIdConstructor();
+                        repositoryBuilder.addMethod(constructor.createConstructor(processingEnv, globalConfiguration, localConfiguration, repositoryBuilder));
 
-                    Map<String, ExecutableElement> repositoryMethods = Stream.concat(dataRepositoryInterfaceTypeElement.getEnclosedElements().stream(), globalConfiguration.getRepositoryInterfaceTypeElement().getEnclosedElements().stream())
-                            .filter(element -> element.getKind().equals(ElementKind.METHOD))
-                            .map(element -> (ExecutableElement) element)
-                            .collect(Collectors.toMap(Object::toString, method -> method));
+                        Map<String, ExecutableElement> repositoryMethods = Stream.concat(dataRepositoryInterfaceTypeElement.getEnclosedElements().stream(), globalConfiguration.getRepositoryInterfaceTypeElement().getEnclosedElements().stream())
+                                .filter(element -> element.getKind().equals(ElementKind.METHOD))
+                                .map(element -> (ExecutableElement) element)
+                                .collect(Collectors.toMap(Object::toString, method -> method));
 
-                    repositoryBuilder.addMethod(countSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(COUNT_SYNC_METHOD), repositoryBuilder))
-                            .addMethod(findOneSyncIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_ONE_SYNC_ID_METHOD), repositoryBuilder))
-                            .addMethod(findFirstSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_FIRST_SYNC_METHOD), repositoryBuilder))
-                            .addMethod(findAllSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_ALL_SYNC_METHOD), repositoryBuilder))
-                            .addMethod(existsSyncIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(EXISTS_SYNC_ID_METHOD), repositoryBuilder))
-                            .addMethod(saveSyncTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(SAVE_SYNC_T_METHOD), repositoryBuilder))
-                            .addMethod(saveSyncIterableTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(SAVE_SYNC_ITERABLE_T_METHOD), repositoryBuilder))
-                            .addMethod(deleteSyncTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_SYNC_T_METHOD), repositoryBuilder))
-                            .addMethod(deleteSyncIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_SYNC_ID_METHOD), repositoryBuilder))
-                            .addMethod(deleteSyncIterableTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_SYNC_ITERABLE_T_METHOD), repositoryBuilder))
-                            .addMethod(deleteAllSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_ALL_SYNC_METHOD), repositoryBuilder))
-                            .addMethod(countMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(COUNT_METHOD), repositoryBuilder))
-                            .addMethod(findOneIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_ONE_ID_METHOD), repositoryBuilder))
-                            .addMethod(findFirstMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_FIRST_METHOD), repositoryBuilder))
-                            .addMethod(findAllMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_ALL_METHOD), repositoryBuilder))
-                            .addMethod(existsIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(EXISTS_ID_METHOD), repositoryBuilder))
-                            .addMethod(saveTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(SAVE_T_METHOD), repositoryBuilder))
-                            .addMethod(saveIterableTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(SAVE_ITERABLE_T_METHOD), repositoryBuilder))
-                            .addMethod(deleteTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_T_METHOD), repositoryBuilder))
-                            .addMethod(deleteIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_ID_METHOD), repositoryBuilder))
-                            .addMethod(deleteIterableTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_ITERABLE_T_METHOD), repositoryBuilder))
-                            .addMethod(deleteAllMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_ALL_METHOD), repositoryBuilder));
+                        repositoryBuilder.addMethod(countSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(COUNT_SYNC_METHOD), repositoryBuilder))
+                                .addMethod(findOneSyncIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_ONE_SYNC_ID_METHOD), repositoryBuilder))
+                                .addMethod(findFirstSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_FIRST_SYNC_METHOD), repositoryBuilder))
+                                .addMethod(findAllSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_ALL_SYNC_METHOD), repositoryBuilder))
+                                .addMethod(existsSyncIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(EXISTS_SYNC_ID_METHOD), repositoryBuilder))
+                                .addMethod(saveSyncTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(SAVE_SYNC_T_METHOD), repositoryBuilder))
+                                .addMethod(saveSyncIterableTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(SAVE_SYNC_ITERABLE_T_METHOD), repositoryBuilder))
+                                .addMethod(deleteSyncTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_SYNC_T_METHOD), repositoryBuilder))
+                                .addMethod(deleteSyncIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_SYNC_ID_METHOD), repositoryBuilder))
+                                .addMethod(deleteSyncIterableTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_SYNC_ITERABLE_T_METHOD), repositoryBuilder))
+                                .addMethod(deleteAllSyncMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_ALL_SYNC_METHOD), repositoryBuilder))
+                                .addMethod(countMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(COUNT_METHOD), repositoryBuilder))
+                                .addMethod(findOneIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_ONE_ID_METHOD), repositoryBuilder))
+                                .addMethod(findFirstMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_FIRST_METHOD), repositoryBuilder))
+                                .addMethod(findAllMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(FIND_ALL_METHOD), repositoryBuilder))
+                                .addMethod(existsIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(EXISTS_ID_METHOD), repositoryBuilder))
+                                .addMethod(saveTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(SAVE_T_METHOD), repositoryBuilder))
+                                .addMethod(saveIterableTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(SAVE_ITERABLE_T_METHOD), repositoryBuilder))
+                                .addMethod(deleteTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_T_METHOD), repositoryBuilder))
+                                .addMethod(deleteIdMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_ID_METHOD), repositoryBuilder))
+                                .addMethod(deleteIterableTMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_ITERABLE_T_METHOD), repositoryBuilder))
+                                .addMethod(deleteAllMethod.createMethod(processingEnv, globalConfiguration, localConfiguration, repositoryMethods.remove(DELETE_ALL_METHOD), repositoryBuilder));
 
-                    JavaFile javaFile = JavaFile.builder(localConfiguration.getDataRepositoryPackageElement().getQualifiedName().toString(), repositoryBuilder.build())
-                            .build();
-                    try {
-                        javaFile.writeTo(processingEnv.getFiler());
-                    } catch (IOException e) {
-                        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
-                    }
-                });
-
+                        JavaFile javaFile = JavaFile.builder(localConfiguration.getDataRepositoryPackageElement().getQualifiedName().toString(), repositoryBuilder.build())
+                                .build();
+                        try {
+                            javaFile.writeTo(processingEnv.getFiler());
+                        } catch (IOException e) {
+                            throw new RealmRepositoryException("Cannot write class" + localConfiguration.getDataRepositoryInterfaceTypeElement().getSimpleName(), e);
+                        }
+                    });
+        } catch (RealmRepositoryException e) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
+        }
         return true;
     }
 
