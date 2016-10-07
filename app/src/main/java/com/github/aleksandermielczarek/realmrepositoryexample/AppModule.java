@@ -9,6 +9,7 @@ import com.github.aleksandermielczarek.realmrepositoryexample.repository.UserRep
 
 import dagger.Module;
 import dagger.Provides;
+import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 /**
@@ -27,7 +28,8 @@ public class AppModule {
     @Provides
     @AppScope
     RealmConfiguration provideRealmConfiguration() {
-        return new RealmConfiguration.Builder(context)
+        Realm.init(context);
+        return new RealmConfiguration.Builder()
                 .deleteRealmIfMigrationNeeded()
                 .build();
     }
