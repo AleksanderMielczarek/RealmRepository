@@ -1,5 +1,7 @@
 apply plugin: 'java'
 
+group = 'com.github.AleksanderMielczarek'
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

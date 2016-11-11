@@ -1,7 +1,8 @@
-package com.github.aleksandermielczarek.realmrepositoryexample;
+package com.github.aleksandermielczarek.realmrepositoryexample.module;
 
 import android.content.Context;
 
+import com.github.aleksandermielczarek.napkin.qualifier.AppContext;
 import com.github.aleksandermielczarek.napkin.scope.AppScope;
 import com.github.aleksandermielczarek.realmrepository.configuration.RealmRepositoryConfiguration;
 import com.github.aleksandermielczarek.realmrepositoryexample.repository.UserRepository;
@@ -17,17 +18,11 @@ import io.realm.RealmConfiguration;
  */
 @Module
 @AppScope
-public class AppModule {
-
-    private final Context context;
-
-    public AppModule(Context context) {
-        this.context = context;
-    }
+public class MainModule {
 
     @Provides
     @AppScope
-    RealmConfiguration provideRealmConfiguration() {
+    RealmConfiguration provideRealmConfiguration(@AppContext Context context) {
         Realm.init(context);
         return new RealmConfiguration.Builder()
                 .deleteRealmIfMigrationNeeded()

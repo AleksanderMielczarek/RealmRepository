@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import com.github.aleksandermielczarek.realmrepositoryexample.BR;
 import com.github.aleksandermielczarek.realmrepositoryexample.R;
 import com.github.aleksandermielczarek.realmrepositoryexample.entity.User;
-import com.github.aleksandermielczarek.realmrepositoryexample.entity.UserFieldNames;
 import com.github.aleksandermielczarek.realmrepositoryexample.repository.UserRepository;
 
 import javax.inject.Inject;
@@ -24,7 +23,7 @@ import rx.schedulers.Schedulers;
  * Created by Aleksander Mielczarek on 21.09.2016.
  */
 
-public class MainViewModel implements UserFieldNames {
+public class MainViewModel {
 
     public final ObservableList<User> users = new ObservableArrayList<>();
     public final ItemView userView = ItemView.of(BR.viewModel, R.layout.item_user);

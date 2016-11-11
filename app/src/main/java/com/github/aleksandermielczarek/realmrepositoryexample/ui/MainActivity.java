@@ -13,8 +13,9 @@ import android.view.Menu;
 import android.view.View;
 
 import com.github.aleksandermielczarek.napkin.Napkin;
-import com.github.aleksandermielczarek.realmrepositoryexample.AppComponent;
+import com.github.aleksandermielczarek.napkin.module.ActivityModule;
 import com.github.aleksandermielczarek.realmrepositoryexample.R;
+import com.github.aleksandermielczarek.realmrepositoryexample.component.AppComponent;
 import com.github.aleksandermielczarek.realmrepositoryexample.databinding.ActivityMainBinding;
 import com.jakewharton.rxbinding.support.v7.widget.RxSearchView;
 import com.jakewharton.rxbinding.widget.RxTextView;
@@ -38,8 +39,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AppComponent appComponent = Napkin.provideComponent(this);
-        appComponent.inject(this);
+        Napkin.<AppComponent>provideComponent(this)
+                .with(new ActivityModule(this))
+                .inject(this);
 
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setViewModel(mainViewModel);

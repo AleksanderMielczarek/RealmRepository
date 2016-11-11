@@ -3,6 +3,9 @@ package com.github.aleksandermielczarek.realmrepositoryexample;
 import android.app.Application;
 
 import com.github.aleksandermielczarek.napkin.ComponentProvider;
+import com.github.aleksandermielczarek.napkin.module.AppModule;
+import com.github.aleksandermielczarek.realmrepositoryexample.component.AppComponent;
+import com.github.aleksandermielczarek.realmrepositoryexample.component.DaggerAppComponent;
 
 import javax.inject.Inject;
 

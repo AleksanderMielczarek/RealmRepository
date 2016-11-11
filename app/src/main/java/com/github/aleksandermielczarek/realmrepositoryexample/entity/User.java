@@ -1,14 +1,11 @@
 package com.github.aleksandermielczarek.realmrepositoryexample.entity;
 
-import com.github.aleksandermielczarek.fieldnames.FieldNames;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by Aleksander Mielczarek on 21.09.2016.
  */
-@FieldNames
 public class User extends RealmObject {
 
     @PrimaryKey
