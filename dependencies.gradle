@@ -1,7 +1,7 @@
 ext {
     versionMajor = 0
     versionMinor = 2
-    versionFix = 0
+    versionFix = 1
 
     minSdkVersionVersion = 16
     sdkVersion = 25
